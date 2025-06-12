@@ -1,0 +1,98 @@
+.right-container{
+    margin-left : 300px;
+}
+
+.right-container {
+  flex: 1;
+  padding-left: 30px;
+  padding-top: 30px;
+  height: calc(100vh - 60px); /* assuming 60px navbar height */
+  overflow-y: auto;
+  background-color: #f8f9fa;
+}
+
+/* Scrollbar styling (optional) */
+.right-container::-webkit-scrollbar {
+  width: 6px;
+}
+.right-container::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 10px;
+}
+
+.card-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: flex-start;
+}
+
+.card {
+  background-color: #fff;
+  width: 240px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: transform 0.2s ease;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+}
+
+.card img {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-bottom: 10px;
+}
+
+.card-text {
+  text-align: center;
+}
+
+.card-text h2 {
+  font-size: 18px;
+  margin: 5px 0;
+  color: #333;
+}
+
+.card-text h4 {
+  font-size: 16px;
+  margin: 3px 0;
+  color: #333;
+}
+
+.card-text button {
+  margin: 10px 0;
+  padding: 6px 12px;
+  font-size: 14px;
+  border: none;
+  border-radius: 6px;
+  background-color: #0a66c2;
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.card-text button:hover {
+  background-color: #004182;
+}
+
+.card-text p {
+  font-size: 15px;
+  color: #444;
+}
+
+.card-text a {
+  color: #0a66c2;
+  text-decoration: none;
+}
+
+.card-text a:hover {
+  text-decoration: underline;
+}

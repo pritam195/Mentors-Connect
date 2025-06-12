@@ -1,0 +1,92 @@
+.left-container {
+    margin-top : 78px;
+  width: 300px;
+  height: 100vh;
+  background-color: #f8f9fb;
+  border-right: 1px solid #ddd;
+  padding: 20px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  overflow-y: auto;
+  box-sizing: border-box;
+}
+
+.left-header h2 {
+  font-size: 20px;
+  font-weight: 600;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.search-box {
+  display : flex;
+  flex-direction: row;
+  width: 100%;
+  box-sizing: border-box;
+  background-color:#f8f9fb;
+  border-bottom: 1px solid #ffffff;
+}
+
+.search-box img{
+  width : 40px
+}
+
+.search-box input[type="text"] {
+  width: 100%;
+  padding: 8px 12px;
+  font-size: 14px;
+  border: 1px solid #fffdfd;
+  border-radius: 8px;
+  background-color: white;
+  outline: none;
+  transition: border-color 0.3s ease;
+}
+
+.search-box input[type="text"]:focus {
+  border-color: #4f46e5;
+}
+
+
+/* All filter sections share this class */
+.filter-section {
+  margin-bottom: 30px;
+}
+
+.filter-section h3 {
+  font-size: 16px;
+  font-weight: 500;
+  margin-bottom: 10px;
+  color: #444;
+}
+
+/* Common style for all filter option lists */
+.filter-options {
+  list-style: none;
+  padding-left: 0;
+}
+
+.filter-options li {
+  padding: 8px 12px;
+  margin-bottom: 6px;
+  background-color: #fff;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.3s;
+  color: #333;
+}
+
+.filter-options li:hover {
+  background-color: #e0e7ff;
+}
+
+/* Optional scrollbar styling */
+.left-container::-webkit-scrollbar {
+  width: 6px;
+}
+
+.left-container::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 10px;
+}

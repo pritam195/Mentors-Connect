@@ -1,0 +1,103 @@
+.navbar {
+  width: 100%;
+  background: #1a2238;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  position: fixed;
+  top: 0;
+  z-index: 9999;
+}
+
+.container {
+  background-color: #1a2238;
+  max-width: 100%;
+  margin: 0 auto;
+  padding: 0 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 70px;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.logo img {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+.logocolor{
+  color: #ffffff;
+}
+
+.logo h1 {
+  font-size: 1.5rem;
+  color: white ;
+  margin: 0;
+  font-weight: 700;
+}
+
+.nav-links ul {
+  display: flex;
+  gap: 24px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  align-items: center;
+}
+
+.nav-links a {
+  text-decoration: none;
+  color: #ffffff;
+  font-weight: 500;
+  font-size: 20px;
+  transition: color 0.2s;
+}
+
+.nav-links a:hover {
+  color: #ff6a3d;
+}
+
+.nav-links img {
+  width: 40px;
+  height: 40px;
+  vertical-align: middle;
+}
+
+.profile {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.profile img {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.profile a{
+  text-decoration: none;
+  color: #ffffff;
+  font-size: 20px;
+}
+
+.profile button {
+  padding: 6px 16px;
+  background: #ff6a3d;
+  color: #fff;
+  border: none;
+  border-radius: 18px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background 0.2s;
+}
+
+.profile button:hover {
+  background: #db3b0a;
+}

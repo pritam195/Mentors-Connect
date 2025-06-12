@@ -1,0 +1,131 @@
+.profile-container {
+  display: flex;
+  margin : 30px;
+  gap: 30px;
+  padding: 10px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* ========== LEFT: Personal Info ========== */
+.personal-info {
+  flex: 1;
+  max-width: 350px;
+  background: linear-gradient(to bottom right, #f5f7fa, #ffffff);
+  border-radius: 20px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+  padding: 25px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: left;
+}
+
+.personal-info img {
+  width: 220px;
+  height: 220px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 4px solid #ffffff;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+}
+
+.personal-info-text {
+  width: 100%;
+}
+
+.personal-info-text h2 {
+  font-size: 18px;
+  font-weight: 600;
+  margin: 12px 0;
+  color: #222;
+}
+
+.personal-info-text h2 span {
+  /* display: block; */
+  margin-top: 6px;
+  font-weight: 400;
+  color: #444;
+  font-size: 14px;
+}
+
+/* ========== RIGHT: Professional Info ========== */
+.professional-info {
+  flex: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+.box1{
+    display: flex;
+    flex-direction: row;
+}
+
+.education{
+    width : 350px;
+}
+.social-links{
+    width : 350px;
+}
+.social-links li{
+    padding: 15px;
+}
+
+.Meeting-info li{
+    padding: 5px;
+}
+
+.professional-info h2 {
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 5px;
+  color: #1a1a1a;
+}
+
+/* Content boxes under each title */
+.professional-info h2 span {
+  display: block;
+  background-color: #f4f4f4;
+  border-left: 5px solid #0077ff;
+  padding: 18px 20px;
+  border-radius: 10px;
+  margin-top: 10px;
+  color: #333;
+}
+
+.professional-info span ul,
+.professional-info span li {
+  list-style: disc;
+  margin-left: 20px;
+  margin-top: 5px;
+}
+
+/* Resume Button */
+.personal-info button {
+  margin-left: 15px;
+  padding: 8px 16px;
+  background-color: #0077ff;
+  border: none;
+  color: white;
+  font-size: 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.personal-info button:hover {
+  background-color: #005fcc;
+}
+
+/* Social Links */
+.professional-info a {
+  color: #0077ff;
+  text-decoration: none;
+  font-weight: 500;
+  margin-left: 10px;
+}
+
+.professional-info a:hover {
+  text-decoration: underline;
+}

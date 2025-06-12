@@ -1,0 +1,106 @@
+.login {
+  display: flex;
+  height: 100vh;
+  width: 100%;
+  font-family: Arial, sans-serif;
+}
+
+/* Left side image */
+.login-left {
+  width: 50%;
+    height : 100%;
+  background-color: #f5f7fa;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.login-left img{
+  width : 100%;
+  height : 100%;
+}
+
+/* Right side container */
+.login-container {
+  display: flex;
+  flex-direction : column;
+  justify-content: center;
+  align-items: center;
+  background-color:  #f5f7fa;
+  width: 50%;
+}
+
+/* Login box in center */
+.login-box {
+  width:100%;
+  max-width: 400px;
+  background: white;
+  padding: 40px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border-radius: 12px;
+}
+
+.logo{
+  justify-content: center;
+}
+
+.logo-text{
+  padding-left : 50px;
+  padding-right: 50px;
+  padding-bottom: 10px;
+}
+
+.logo-text p{
+  text-align: center;
+  font-size: medium;
+  font-weight: 500;
+  font-family: 'Times New Roman', Times, serif;
+}
+
+.logo1 h1{
+  color: black;
+  text-align: center;
+  font-size: xx-large;
+  font-weight: 900;
+  font-family: 'Times New Roman', Times, serif;
+}
+
+.login-box h2 {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.login-form input {
+  padding: 12px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 16px;
+}
+
+.login-form button {
+  padding: 12px;
+  border: none;
+  border-radius: 6px;
+  background-color: #007bff;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background 0.3s ease;
+}
+
+.login-form button:hover {
+  background-color: #0056b3;
+}
+
+.signup-link {
+  margin-top: 20px;
+  font-size: 14px;
+  text-align: center;
+}
