@@ -4,11 +4,14 @@ import loginpic from '../../assets/loginpic.png'
 import logo from '../../assets/logo.png'
 import axios from 'axios'
 import {useNavigate} from 'react-router-dom'
+import { useContext } from 'react'
+import { Context } from '../../App'
 
 const LoginCom = () => {
   const [email, setEmail] = useState('');
   const [password , setPassword] = useState('');
   const navigate = useNavigate();
+  const {setUsername} = useContext(Context)
 
   const handleLogin = async (e) =>{
     e.preventDefault();
@@ -21,6 +24,7 @@ const LoginCom = () => {
 
       if(response.status === 200){
         alert("Login Successfull")
+        setUsername(response.data.username)
         navigate('/');
       }
 

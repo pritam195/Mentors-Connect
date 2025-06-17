@@ -1,10 +1,12 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import './Navbar.css';
 import profile from '../../assets/profile.jpg';
 import calender from '../../assets/calenderr.png';
 import logo from '../../assets/logo.png';
+import { Context } from '../../App';
 
 const Navbar = () => {
+  const {username} = useContext(Context)
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
@@ -37,7 +39,7 @@ const Navbar = () => {
           </ul>
         </div>
         <div className="profile">
-          <a href="/profile"><img src={profile} alt="" /></a>
+          <a href={`/${username}/profile`}><img src={profile} alt="" /></a>
           {isLoggedIn ? (
             <button onClick={handleLogout}>Logout</button>
           ) : (

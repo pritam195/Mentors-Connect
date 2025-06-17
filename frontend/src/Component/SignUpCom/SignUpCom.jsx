@@ -4,10 +4,13 @@ import loginpic from '../../assets/loginpic.png'
 import logo from '../../assets/logo.png'
 import axios from 'axios'
 import {useNavigate} from 'react-router-dom'
+import { useContext } from 'react'
+import { Context } from '../../App'
+import default_profile_photo from '../../assets/profile.jpg'
 
 const SignUpCom = () => {
   const navigate = useNavigate();
-
+  const {setUsername} = useContext(Context)
   const [formData, setFormData] = useState({
     name : '',
     username : '',
@@ -17,7 +20,8 @@ const SignUpCom = () => {
     confirmPassword : '',
     gender : '',
     dob : '',
-    agree : false
+    agree : false,
+    profile_photo: default_profile_photo
   });
 
   const handleChange = (e) => {
@@ -49,12 +53,13 @@ const SignUpCom = () => {
           email : formData.email,
           password : formData.password,
           gender : formData.gender,
-          dob : formData.dob
+          dob : formData.dob,
+          profile_photo: formData.profile_photo
         },
         { withCredentials : true}
       );
-      console.log("User Created :", response.data);
       alert("Account created successfully!");
+      setUsername(response.data.username)
       navigate('/');
     }catch(err){
       console.error("Signup failed", err.response?.data || err.message);
