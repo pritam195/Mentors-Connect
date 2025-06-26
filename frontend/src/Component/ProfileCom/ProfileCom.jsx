@@ -223,11 +223,12 @@ const ProfileCom = () => {
               </div>
             }
             <div className="personal-info-text">
-              <h2>Name <span> {userInfo.name} </span></h2>
-              <h2>Username <span> {userInfo.username} </span></h2>
-              <h2>Email <span>{userInfo.email}</span></h2>
-              <h2>Mobile No <span>{userInfo.mobno}</span></h2>
-              <h2>Bio</h2>
+              <p><strong>Name</strong> : {userInfo.name}</p>
+              <p><strong>Username</strong> : {userInfo.username}</p>
+              <p><strong>Email</strong> : {userInfo.email}</p>
+              <p><strong>Mobile No</strong> : {userInfo.mobno}</p>
+
+              <p><strong>Bio</strong> : 
               {isBioEditing ?
                 <div>
                   <input autoFocus value={userBio.bio} onChange={(e) => handleInputChange(e, "bio")} />
@@ -238,25 +239,32 @@ const ProfileCom = () => {
                   <span>{userBio.bio}</span>
                   <LiaEditSolid onClick={() => setIsBioEditing(true)} />
                 </div>
-              }
-              <h2>Resume</h2>
-              {isResumeEditing ?
-                <div>
-                  <input autoFocus value={userBio.resume} onChange={(e) => handleInputChange(e, "resume")} />
-                  <MdDone onClick={() => { setIsResumeEditing(false); handleSaveBioChanges() }} />
-                </div>
-                :
-                <div>
-                  {userBio.resume &&
-                    <a href={userBio.resume} target='_blank' rel="noopener noreferrer" >Check</a>
-                  }
-                  <LiaEditSolid onClick={() => setIsResumeEditing(true)} />
-                </div>
-              }
+                }</p>
+              <p className="resume-field">
+                <strong>Resume :</strong>
+                {isResumeEditing ? (
+                  <>
+                    <input
+                      autoFocus
+                      value={userBio.resume}
+                      onChange={(e) => handleInputChange(e, "resume")}
+                      className="resume-input"
+                    />
+                    <MdDone onClick={() => { setIsResumeEditing(false); handleSaveBioChanges(); }} />
+                  </>
+                ) : (
+                  <>
+                    {userBio.resume && (
+                      <a href={userBio.resume} target="_blank" rel="noopener noreferrer" className="resume-link">Check</a>
+                    )}
+                    <LiaEditSolid onClick={() => setIsResumeEditing(true)} />
+                  </>
+                )}
+              </p>
             </div>
           </div>
 
-          <div className="professional-info">
+          <div className="professional-info" >
             <div className="box1">
               <h2 className='education'>Education detail</h2 >
               {isEducationEditing ?
@@ -320,49 +328,86 @@ const ProfileCom = () => {
               <li>Dislikes : 1 Thousand</li>
 
             </div>
-            <h2>Work Experience</h2>
-            {isWorkExpEditing ?
-              <div>
-                {userBio.work_experience.map((detail, i) => (
-                  <div key={i}>
-                    <p>company_name</p>
-                    <input autoFocus value={detail.company_name} onChange={(e) => handleInputChange(e, "company_name", i)} />
-                    <p>Role</p>
-                    <input value={detail.role} onChange={(e) => handleInputChange(e, "role", i)} />
-                    <p>Place</p>
-                    <input value={detail.place} onChange={(e) => handleInputChange(e, "place", i)} />
-                    <p>Duration</p>
-                    <input value={detail.duration} onChange={(e) => handleInputChange(e, "duration", i)} />
-                    <p>Features</p>
-                    {detail.features.map((feature, j) =>
-                      <input autoFocus key={j} value={feature} onChange={(e) => handleInputChange(e, "feature", i, j)} />
-                    )}
-                    <button onClick={() => handleAddExtraField("feature", i)}>Add Feature</button>
-                  </div>
-                ))}
-                <button onClick={() => handleAddExtraField("workExp")}>Add Experience</button>
-                <MdDone onClick={() => { setIsWorkExpEditing(false); handleSaveBioChanges(); }} />
-              </div>
-              :
-              <div>
-                <ul>
-                  {userBio.work_experience.map((detail, i) =>
-                    <li key={i} >
-                      <p>company_name: {detail.company_name}</p>
-                      <p>Role: {detail.role}</p>
-                      <p>Place: {detail.place}</p>
-                      <p>Duration: {detail.duration}</p>
-                      {detail.features.map((feature, j) =>
-                        <div key={j} >
-                          <p>Feature {j + 1}: {feature}</p>
-                        </div>
-                      )}
-                    </li>
-                  )}
-                </ul>
-                <LiaEditSolid onClick={() => setIsWorkExpEditing(true)} />
-              </div>
-            }
+            <div className="work-experience-section">
+              <h2 className="work-exp-title">Work Experience</h2>
+
+              {isWorkExpEditing ? (
+                <div className="section-card">
+                  <ul>
+                    {userBio.work_experience.map((detail, i) => (
+                      <li key={i} className="work-exp-list-item">
+                        <p><strong>Company Name:</strong>
+                          <input
+                            autoFocus
+                            value={detail.company_name}
+                            onChange={(e) => handleInputChange(e, "company_name", i)}
+                          />
+                        </p>
+
+                        <p><strong>Role:</strong>
+                          <input
+                            value={detail.role}
+                            onChange={(e) => handleInputChange(e, "role", i)}
+                          />
+                        </p>
+
+                        <p><strong>Place:</strong>
+                          <input
+                            value={detail.place}
+                            onChange={(e) => handleInputChange(e, "place", i)}
+                          />
+                        </p>
+
+                        <p><strong>Duration:</strong>
+                          <input
+                            value={detail.duration}
+                            onChange={(e) => handleInputChange(e, "duration", i)}
+                          />
+                        </p>
+
+                        <p><strong>Features:</strong></p>
+                        {detail.features.map((feature, j) => (
+                          <input
+                            key={j}
+                            value={feature}
+                            onChange={(e) => handleInputChange(e, "feature", i, j)}
+                            placeholder={`Feature ${j + 1}`}
+                          />
+                        ))}
+                        <button onClick={() => handleAddExtraField("feature", i)}>Add Feature</button>
+                      </li>
+                    ))}
+                  </ul>
+
+                  <button onClick={() => handleAddExtraField("workExp")}>Add Experience</button>
+                  <MdDone
+                    onClick={() => {
+                      setIsWorkExpEditing(false);
+                      handleSaveBioChanges();
+                    }}
+                    className="save-icon"
+                  />
+                </div>
+              ) : (
+                <div className="section-card">
+                  <ul>
+                    {userBio.work_experience.map((detail, i) => (
+                      <li key={i} className="work-exp-list-item">
+                        <p><strong>Company Name:</strong> {detail.company_name}</p>
+                        <p><strong>Role:</strong> {detail.role}</p>
+                        <p><strong>Place:</strong> {detail.place}</p>
+                        <p><strong>Duration:</strong> {detail.duration}</p>
+                        {detail.features.map((feature, j) => (
+                          <p key={j}><strong>Feature {j + 1}:</strong> {feature}</p>
+                        ))}
+                      </li>
+                    ))}
+                  </ul>
+                  <LiaEditSolid onClick={() => setIsWorkExpEditing(true)} />
+                </div>
+              )}
+            </div>
+
           </div>
         </div>
         :
@@ -407,22 +452,28 @@ const ProfileCom = () => {
               <li>Dislikes : 1 Thousand</li>
 
             </div>
-            <h2>Work Experience</h2>
-            <ul>
-              {userBio.work_experience.map((detail, i) =>
-                <li key={i} >
-                  <p>company_name: {detail.company_name}</p>
-                  <p>Role: {detail.role}</p>
-                  <p>Place: {detail.place}</p>
-                  <p>Duration: {detail.duration}</p>
-                  {detail.features.map((feature, j) =>
-                    <div key={j} >
-                      <p>Feature {j + 1}: {feature}</p>
-                    </div>
-                  )}
-                </li>
-              )}
-            </ul>
+
+            
+            <div className="work-experience-section">
+              <h2>Work Experience</h2>
+              <div className="section-card">
+                <ul>
+                  {userBio.work_experience.map((detail, i) => (
+                    <li key={i}>
+                      <p><strong>Company Name:</strong> {detail.company_name}</p>
+                      <p><strong>Role:</strong> {detail.role}</p>
+                      <p><strong>Place:</strong> {detail.place}</p>
+                      <p><strong>Duration:</strong> {detail.duration}</p>
+                      {detail.features.map((feature, j) => (
+                        <p key={j}><strong>Feature {j + 1}:</strong> {feature}</p>
+                      ))}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+
+
           </div>
         </div>
       }

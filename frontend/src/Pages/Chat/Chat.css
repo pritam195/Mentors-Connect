@@ -1,0 +1,13 @@
+.chat-wrapper {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  padding-top: 10px; /* Exactly match your navbar height */
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.chat-container {
+  display: flex;
+  flex: 1;
+}

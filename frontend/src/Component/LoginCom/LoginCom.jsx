@@ -25,6 +25,7 @@ const LoginCom = () => {
       if(response.status === 200){
         alert("Login Successfull")
         setUsername(response.data.username)
+        localStorage.setItem("loggedInUsername", response.data.username);
         navigate('/');
       }
 

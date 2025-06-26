@@ -10,7 +10,6 @@ const userSchema = mongoose.Schema({
     password : String,
     gender: {type: String},
     dob : String,
-    profile_photo: String
 });
 
 module.exports = mongoose.model("user",userSchema);

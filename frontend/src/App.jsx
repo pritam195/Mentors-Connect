@@ -7,6 +7,7 @@ import SignUp from './Pages/SignUp/SignUp.jsx'
 import Mentor from './Pages/Mentor/Mentor.jsx'
 import Chat from './Pages/Chat/Chat.jsx'
 import Profile from './Pages/Profile/Profile.jsx'
+import Meeting from './Pages/Meeting/Meeting.jsx'
 
 export const Context = React.createContext()
 
@@ -45,6 +46,7 @@ const App = () => {
         <Route path='/mentor' element={<Mentor></Mentor>}></Route>
         <Route path='/chat' element={<Chat></Chat>}></Route>
         <Route path='/:name/profile' element={<Profile />}></Route>
+        <Route path='/meeting' element={<Meeting></Meeting>}></Route>
       </Routes>
       </Context.Provider>
     </div>

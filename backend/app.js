@@ -1,7 +1,23 @@
-const express = require('express');
+
+const express = require("express");
+const http = require("http");
+const { Server } = require("socket.io");
+
 const app = express();
+const server = http.createServer(app);
+const io = new Server(server, {
+  cors: {
+    origin: "http://localhost:5173",
+    credentials: true,
+    methods: ["GET", "POST"],
+  },
+});
+
+
 const userModel = require("./models/user");
 const UserBio = require("./models/userBio")
+const Message = require("./models/messagemodel");
+
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const multer = require('multer');
@@ -67,10 +83,6 @@ app.post('/create', (req,res) =>{
     })
 
 })
-
-app.get("/login", function(res,res){
-    res.render('login');
-});
 
 app.post('/login', async function(req,res){
     let user = await userModel.findOne({email : req.body.email});
@@ -149,6 +161,33 @@ app.post("/:username/profile", async (req, res) => {
     }
 })
 
+
+app.get("/search-users", async (req, res) => {
+  const { query } = req.query;
+
+  if (!query || query.trim() === "") {
+    return res.status(200).json([]); // Return empty list for empty input
+  }
+
+  try {
+    const results = await userModel
+      .find({
+        $or: [
+          { name: { $regex: query.trim(), $options: "i" } },
+          { username: { $regex: query.trim(), $options: "i" } },
+        ],
+      })
+      .select("username name profile_photo");
+
+    res.status(200).json(results);
+  } catch (error) {
+    console.error("Error during user search:", error);
+    res.status(500).send({ message: "Internal server error" });
+  }
+});
+
+
+
 app.get("/mentor", async (req, res) => {
     try {
         let mentorsData = await UserBio.find({ work_experience: { $ne: [] } }).select("username name profile_photo work_experience")
@@ -211,4 +250,131 @@ app.post("/mentor", async (req, res) => {
     }
 })
 
-app.listen(3000);
+
+// Get all messages related to a user
+app.get("/users", async (req, res) => {
+  try {
+    const users = await userModel.find({}, "username name profile_photo");
+    res.status(200).json(users);
+  } catch (err) {
+    console.error("Error fetching users:", err);
+    res.status(500).send({ message: "Internal server error" });
+  }
+});
+
+
+app.get("/messages/:username", async (req, res) => {
+    const { username } = req.params;
+  
+    try {
+      const messages = await Message.find({
+        $or: [{ senderId: username }, { receiverId: username }],
+      }).sort({ timestamp: 1 });
+  
+      res.json(messages);
+    } catch (err) {
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+  
+
+io.on("connection", (socket) => {
+    console.log("Socket connected:", socket.id);
+  
+    socket.on("send_message", async (data) => {
+      try {
+        const { senderId, receiverId, text } = data;
+        const newMessage = new Message({ senderId, receiverId, text });
+        await newMessage.save();
+  
+        // Broadcast message to all clients
+        io.emit("receive_message", newMessage);
+      } catch (error) {
+        console.error("Socket message save error:", error);
+      }
+    });
+  
+    socket.on("disconnect", () => {
+      console.log("Socket disconnected:", socket.id);
+    });
+  });
+  
+
+
+
+
+// Zoom api integration
+
+const { ZOOM_CLIENT_ID, ZOOM_CLIENT_SECRET, ZOOM_REDIRECT_URI } = process.env;
+
+// 1. Redirect mentor to Zoom
+app.get("/zoom/auth", (req, res) => {
+  const zoomAuthUrl = `https://zoom.us/oauth/authorize?response_type=code&client_id=${ZOOM_CLIENT_ID}&redirect_uri=${ZOOM_REDIRECT_URI}`;
+  res.redirect(zoomAuthUrl);
+});
+
+// 2. Handle Zoom callback
+app.get("/zoom/callback", async (req, res) => {
+  const code = req.query.code;
+
+  try {
+    const tokenRes = await axios.post("https://zoom.us/oauth/token", null, {
+      params: {
+        grant_type: "authorization_code",
+        code,
+        redirect_uri: ZOOM_REDIRECT_URI,
+      },
+      auth: {
+        username: ZOOM_CLIENT_ID,
+        password: ZOOM_CLIENT_SECRET,
+      },
+    });
+
+    const access_token = tokenRes.data.access_token;
+    // ✅ You can save access_token in DB here (linked to mentor)
+
+    // Redirect to frontend with token
+    res.redirect(`http://localhost:3000/host-meeting?token=${access_token}`);
+  } catch (err) {
+    console.error("OAuth error:", err.response?.data || err.message);
+    res.status(500).send("Zoom auth failed");
+  }
+});
+
+// 3. Create Zoom meeting
+app.get("/api/create-meeting", async (req, res) => {
+  const accessToken = req.query.token;
+  if (!accessToken) return res.status(400).json({ message: "Missing token" });
+
+  try {
+    const response = await axios.post(
+      "https://api.zoom.us/v2/users/me/meetings",
+      {
+        topic: "Mentorship Session",
+        type: 1, // Instant meeting
+        settings: {
+          join_before_host: true,
+          mute_upon_entry: true,
+        },
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    res.json(response.data);
+  } catch (err) {
+    console.error("Meeting error:", err.response?.data || err.message);
+    res.status(500).json({ message: "Failed to create meeting" });
+  }
+});
+
+
+
+server.listen(3000, () => {
+  console.log("Server running at http://localhost:3000");
+});
+  

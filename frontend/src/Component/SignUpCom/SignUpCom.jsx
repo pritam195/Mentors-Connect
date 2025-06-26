@@ -60,6 +60,7 @@ const SignUpCom = () => {
       );
       alert("Account created successfully!");
       setUsername(response.data.username)
+      localStorage.setItem("loggedInUsername", response.data.username);
       navigate('/');
     }catch(err){
       console.error("Signup failed", err.response?.data || err.message);
