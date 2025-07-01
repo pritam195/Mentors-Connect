@@ -1,19 +1,18 @@
-import React, {useState, useEffect} from 'react'
-import { Routes, Route } from 'react-router-dom'
-import './App.css'
-import Home from './Pages/Home/Home.jsx'
-import Login from './Pages/Login/Login.jsx'
-import SignUp from './Pages/SignUp/SignUp.jsx'
-import Mentor from './Pages/Mentor/Mentor.jsx'
-import Chat from './Pages/Chat/Chat.jsx'
-import Profile from './Pages/Profile/Profile.jsx'
-import Meeting from './Pages/Meeting/Meeting.jsx'
+import React, { useState, useEffect } from 'react';
+import { Routes, Route } from "react-router-dom"; // No Router here!
+import './App.css';
+import Home from './Pages/Home/Home.jsx';
+import Login from './Pages/Login/Login.jsx';
+import SignUp from './Pages/SignUp/SignUp.jsx';
+import Mentor from './Pages/Mentor/Mentor.jsx';
+import Chat from './Pages/Chat/Chat.jsx';
+import Profile from './Pages/Profile/Profile.jsx';
+import MeetingCom from './Component/MeetingCom/MeetingCom.jsx';
 
-export const Context = React.createContext()
+export const Context = React.createContext();
 
 const App = () => {
-
-  let [username, setUsername] = useState(null)
+  const [username, setUsername] = useState(null);
 
   useEffect(() => {
     async function handleFetchUsername() {
@@ -21,37 +20,36 @@ const App = () => {
         const response = await fetch("http://localhost:3000/get_username", {
           method: "GET",
           credentials: "include"
-        })
+        });
         if (response.status === 200) {
-          let data = await response.json()
+          let data = await response.json();
           if (data) {
-            setUsername(data.username)
+            setUsername(data.username);
           }
         }
-      }
-      catch (error) {
-        alert("An error occurred. Please try again.")
+      } catch (error) {
+        alert("An error occurred. Please try again.");
       }
     }
-    handleFetchUsername()
-  }, [])
+    handleFetchUsername();
+  }, []);
 
   return (
-    <div>
-      <Context.Provider value={{ username, setUsername }} >
+    <Context.Provider value={{ username, setUsername }}>
       <Routes>
-        <Route index element={<Home></Home>}></Route>
-        <Route path='/login' element={<Login></Login>}></Route>
-        <Route path='/signup' element={<SignUp></SignUp>}></Route>
-        <Route path='/mentor' element={<Mentor></Mentor>}></Route>
-        <Route path='/chat' element={<Chat></Chat>}></Route>
-        <Route path='/:name/profile' element={<Profile />}></Route>
-        <Route path='/meeting' element={<Meeting></Meeting>}></Route>
+        <Route index element={<Home />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<SignUp />} />
+        <Route path="/mentor" element={<Mentor />} />
+        <Route path="/chat" element={<Chat />} />
+        <Route path="/:name/profile" element={<Profile />} />
+        <Route path="/host-meeting" element={<MeetingCom />} />
       </Routes>
-      </Context.Provider>
-    </div>
-  )
-}
+    </Context.Provider>
+  );
+};
 
-export default App
+export default App;
+
+
 

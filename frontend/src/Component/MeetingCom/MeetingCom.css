@@ -1,33 +1,122 @@
-/* HostMeeting.css */
-
+/* General container */
 .host-container {
-    max-width: 600px;
-    margin: 50px auto;
-    font-family: Arial, sans-serif;
+  max-width: 600px;
+  margin: 100px auto 40px; /* leaves space for navbar */
+  padding: 30px;
+  background-color: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #333;
+  transition: all 0.3s ease;
+}
+
+/* Headings */
+.host-container h2 {
+  text-align: center;
+  margin-bottom: 20px;
+  color: #2c3e50;
+  font-size: 24px;
+}
+
+.host-container h3 {
+  text-align: center;
+  color: #e74c3c;
+  margin-bottom: 10px;
+  font-weight: 500;
+}
+
+/* Form elements */
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: #34495e;
+}
+
+.form-group input[type="text"],
+.form-group input[type="date"],
+.form-group input[type="time"],
+.form-group textarea {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 15px;
+  background-color: #f9f9f9;
+  transition: border-color 0.3s ease;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+  border-color: #3498db;
+  outline: none;
+  background-color: #fff;
+}
+
+/* Date & Time on one line */
+.date-time-group {
+  display: flex;
+  gap: 15px;
+  flex-wrap: wrap;
+}
+
+.date-time-group input {
+  flex: 1;
+}
+
+/* Textarea resizability */
+textarea {
+  resize: vertical;
+}
+
+/* Host Button */
+.host-button {
+  width: 100%;
+  padding: 14px;
+  background-color: #0077ff;
+  color: #fff;
+  font-size: 16px;
+  font-weight: bold;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.host-button:hover {
+  background-color: #005ecb;
+}
+
+/* Meeting box after creation */
+.host-box {
+  padding: 20px;
+  background-color: #f1f1f1;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  margin-top: 20px;
+}
+
+.host-input {
+  padding: 10px;
+  width: 100%;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  margin-top: 5px;
+}
+
+/* Responsive fix for small screens */
+@media (max-width: 600px) {
+  .date-time-group {
+    flex-direction: column;
   }
-  
-  .host-box {
-    padding: 20px;
-    background-color: #f1f1f1;
-    border-radius: 10px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  }
-  
-  .host-input {
-    padding: 10px;
-    width: 100%;
-    border-radius: 5px;
-    border: 1px solid #ccc;
-    margin-top: 5px;
-  }
-  
+
   .host-button {
-    padding: 10px 20px;
-    background-color: #2D8CFF;
-    color: #fff;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    margin-top: 15px;
+    font-size: 15px;
+    padding: 12px;
   }
-  
+}

@@ -34,7 +34,7 @@ const Navbar = () => {
             <li><a href="/">Home</a></li>
             <li><a href="/mentor">Mentors</a></li>
             <li><a href="/chat">Chats</a></li>
-            <li><a href="/meeting">Meeting</a></li>
+            <li><a href="/host-meeting">Meeting</a></li>
             <li><img src={calender} alt="" /></li>
           </ul>
         </div>

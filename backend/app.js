@@ -1,7 +1,7 @@
-
 const express = require("express");
 const http = require("http");
 const { Server } = require("socket.io");
+const axios = require("axios");
 
 const app = express();
 const server = http.createServer(app);
@@ -17,6 +17,7 @@ const io = new Server(server, {
 const userModel = require("./models/user");
 const UserBio = require("./models/userBio")
 const Message = require("./models/messagemodel");
+const sessionModel = require("./models/sessionModel");
 
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
@@ -306,71 +307,124 @@ io.on("connection", (socket) => {
 // Zoom api integration
 
 const { ZOOM_CLIENT_ID, ZOOM_CLIENT_SECRET, ZOOM_REDIRECT_URI } = process.env;
+const qs = require("querystring");
 
-// 1. Redirect mentor to Zoom
+// Create a meeting info
+app.post("/api/sessionInfo", async (req, res) => {
+  const { sessionName, description, date , time } = req.body;
+
+  if (!sessionName || !description || !date || !time) {
+    return res.status(400).json({ message: "All the fields are required" });
+  }
+
+  try {
+    console.log("Session info received :", { sessionName, description, date, time });
+
+    await sessionModel.create({ sessionName, description, date , time});
+    return res.status(200).json({ message: "Session detail saved successfully" });
+  } catch (err) {
+    console.log("Error saving session info : ", err);
+    return res.status(500).json({ message: "Server error" });
+  }
+})
+
+// Step 1: Redirect to Zoom
 app.get("/zoom/auth", (req, res) => {
   const zoomAuthUrl = `https://zoom.us/oauth/authorize?response_type=code&client_id=${ZOOM_CLIENT_ID}&redirect_uri=${ZOOM_REDIRECT_URI}`;
   res.redirect(zoomAuthUrl);
 });
 
-// 2. Handle Zoom callback
+// Step 2: Handle Zoom callback
 app.get("/zoom/callback", async (req, res) => {
   const code = req.query.code;
 
   try {
-    const tokenRes = await axios.post("https://zoom.us/oauth/token", null, {
-      params: {
+    const response = await axios.post(
+      "https://zoom.us/oauth/token",
+      qs.stringify({
         grant_type: "authorization_code",
         code,
         redirect_uri: ZOOM_REDIRECT_URI,
-      },
-      auth: {
-        username: ZOOM_CLIENT_ID,
-        password: ZOOM_CLIENT_SECRET,
-      },
+      }),
+      {
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+          Authorization:
+            "Basic " +
+            Buffer.from(`${ZOOM_CLIENT_ID}:${ZOOM_CLIENT_SECRET}`).toString(
+              "base64"
+            ),
+        },
+      }
+    );
+
+    const { access_token } = response.data;
+
+    // Set token in cookie
+    res.cookie("zoom_token", access_token, {
+      httpOnly: true,
+      secure: false,
+      sameSite: "Lax",
+      maxAge: 60 * 60 * 1000, // 1 hour
     });
 
-    const access_token = tokenRes.data.access_token;
-    // ✅ You can save access_token in DB here (linked to mentor)
-
-    // Redirect to frontend with token
-    res.redirect(`http://localhost:3000/host-meeting?token=${access_token}`);
+    res.redirect("http://localhost:5173/host-meeting");
+    console.log("Zoom token exchanged successfully:", access_token);
   } catch (err) {
-    console.error("OAuth error:", err.response?.data || err.message);
+    console.error(
+      "Zoom token exchange failed:",
+      err.response?.data || err.message
+    );
     res.status(500).send("Zoom auth failed");
   }
 });
 
-// 3. Create Zoom meeting
+// Step 3: Create Zoom meeting
 app.get("/api/create-meeting", async (req, res) => {
-  const accessToken = req.query.token;
-  if (!accessToken) return res.status(400).json({ message: "Missing token" });
+  console.log("Creating Zoom meeting API called");
+
+  const token = req.cookies.zoom_token;
+  if (!token) {
+    console.error("Zoom token not found in cookies");
+    return res.status(401).json({ message: "Unauthorized" });
+  }
 
   try {
+    const now = new Date();
+    const isoTime = new Date(now.getTime() + 5 * 60 * 1000).toISOString(); // 5 minutes from now
+
     const response = await axios.post(
       "https://api.zoom.us/v2/users/me/meetings",
       {
         topic: "Mentorship Session",
-        type: 1, // Instant meeting
+        type: 2, // Scheduled meeting
+        start_time: isoTime,
+        timezone: "Asia/Kolkata",
         settings: {
-          join_before_host: true,
+          join_before_host: false,
           mute_upon_entry: true,
         },
       },
       {
         headers: {
-          Authorization: `Bearer ${accessToken}`,
+          Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
       }
     );
 
-    res.json(response.data);
+    console.log("Meeting created:", response.data); // ✅ log to verify data
+    res.json(response.data); // ✅ send to frontend
   } catch (err) {
-    console.error("Meeting error:", err.response?.data || err.message);
+    console.error(
+      "Meeting creation failed:",
+      err.response?.data || err.message
+    );
     res.status(500).json({ message: "Failed to create meeting" });
   }
 });
+
+
 
 
 
