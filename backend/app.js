@@ -13,6 +13,8 @@ const io = new Server(server, {
   },
 });
 
+const PORT = process.env.PORT || 5000;
+
 
 const userModel = require("./models/user");
 const UserBio = require("./models/userBio")
@@ -413,8 +415,8 @@ app.get("/api/create-meeting", async (req, res) => {
       }
     );
 
-    console.log("Meeting created:", response.data); // ✅ log to verify data
-    res.json(response.data); // ✅ send to frontend
+    console.log("Meeting created:", response.data); 
+    res.json(response.data); 
   } catch (err) {
     console.error(
       "Meeting creation failed:",
@@ -428,7 +430,7 @@ app.get("/api/create-meeting", async (req, res) => {
 
 
 
-server.listen(3000, () => {
-  console.log("Server running at http://localhost:3000");
+server.listen(PORT, () => {
+  console.log(`Server running at http://localhost:${PORT}`);
 });
   
