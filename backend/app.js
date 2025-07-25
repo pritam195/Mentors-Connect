@@ -47,10 +47,12 @@ const cookieParser = require('cookie-parser');
 const path = require('path'); 
 
 const cors = require('cors');
-app.use(cors({
-    origin: "http://localhost:5173",
-    credentials: true
-}));
+app.use(
+  cors({
+    origin: "https://mentors-connect-vjti.vercel.app",
+    credentials: true,
+  })
+);
 
 const storage = new CloudinaryStorage({
     cloudinary: cloudinary,
