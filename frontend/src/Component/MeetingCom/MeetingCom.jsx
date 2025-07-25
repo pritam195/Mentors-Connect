@@ -26,7 +26,7 @@ const MeetingCom = () => {
         e.preventDefault();
 
         try {
-            const response = await fetch("http://localhost:3000/api/sessionInfo", {
+            const response = await fetch("https://mentors-connect-zh64.onrender.com/api/sessionInfo", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
@@ -35,7 +35,7 @@ const MeetingCom = () => {
             });
 
             if (response.ok) {
-                window.location.href = "http://localhost:3000/zoom/auth";
+                window.location.href = "https://mentors-connect-zh64.onrender.com/zoom/auth";
             } else {
                 const data = await response.json();
                 setError(data.message || "Failed to save session details");
@@ -47,7 +47,7 @@ const MeetingCom = () => {
     };
 
     useEffect(() => {
-        fetch("http://localhost:3000/api/create-meeting", {
+        fetch("https://mentors-connect-zh64.onrender.com/api/create-meeting", {
             credentials: "include"
         })
             .then((res) => {

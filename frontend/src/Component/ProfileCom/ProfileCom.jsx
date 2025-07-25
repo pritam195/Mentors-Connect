@@ -57,7 +57,7 @@ const ProfileCom = () => {
   useEffect(() => {
     async function handleFetchUserInfo() {
       try {
-        const response = await fetch(`http://localhost:3000/${name}/profile`, {
+        const response = await fetch(`https://mentors-connect-zh64.onrender.com/${name}/profile`, {
           method: "GET"
         })
         if (response.ok) {
@@ -171,7 +171,7 @@ const ProfileCom = () => {
     }
 
     try {
-      let response = await fetch(`http://localhost:3000/${username}/profile`, {
+      let response = await fetch(`https://mentors-connect-zh64.onrender.com/${username}/profile`, {
         method: "POST",
         headers: {
           'Content-Type': "application/json"
@@ -192,7 +192,7 @@ const ProfileCom = () => {
     let formData = new FormData()
     formData.append("profile_photo", newProfilePhoto)
     try {
-      let response = await fetch(`http://localhost:3000/${username}/profile/profile-photo`, {
+      let response = await fetch(`https://mentors-connect-zh64.onrender.com/${username}/profile/profile-photo`, {
         method: "POST",
         body: formData
       })

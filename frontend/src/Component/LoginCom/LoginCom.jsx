@@ -17,7 +17,7 @@ const LoginCom = () => {
     e.preventDefault();
     try{
       const response = await axios.post(
-        'http://localhost:3000/login',
+        'https://mentors-connect-zh64.onrender.com/login',
         {email , password},
         {withCredentials : true}
       );

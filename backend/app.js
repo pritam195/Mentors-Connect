@@ -2,6 +2,8 @@ const express = require("express");
 const http = require("http");
 const { Server } = require("socket.io");
 const axios = require("axios");
+require("dotenv").config();
+const mongoose = require("mongoose");
 
 const app = express();
 const server = http.createServer(app);
@@ -14,6 +16,20 @@ const io = new Server(server, {
 });
 
 const PORT = process.env.PORT || 5000;
+
+mongoose
+  .connect(process.env.MONGO_URI)
+  .then(() => {
+    console.log("✅ MongoDB connected");
+
+    server.listen(PORT, () => {
+      console.log(`🚀 Server running at http://localhost:${PORT}`);
+    });
+  })
+  .catch((err) => {
+    console.error("❌ MongoDB connection error:", err);
+  });
+
 
 
 const userModel = require("./models/user");
@@ -430,7 +446,7 @@ app.get("/api/create-meeting", async (req, res) => {
 
 
 
-server.listen(PORT, () => {
-  console.log(`Server running at http://localhost:${PORT}`);
-});
+// server.listen(PORT, () => {
+//   console.log(`Server running at http://localhost:${PORT}`);
+// });
   

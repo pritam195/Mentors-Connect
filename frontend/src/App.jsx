@@ -17,7 +17,7 @@ const App = () => {
   useEffect(() => {
     async function handleFetchUsername() {
       try {
-        const response = await fetch("http://localhost:3000/get_username", {
+        const response = await fetch("https://mentors-connect-zh64.onrender.com/get_username", {
           method: "GET",
           credentials: "include"
         });
