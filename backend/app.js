@@ -388,7 +388,7 @@ app.get("/zoom/callback", async (req, res) => {
       maxAge: 60 * 60 * 1000, // 1 hour
     });
 
-    res.redirect("http://localhost:5173/host-meeting");
+    res.redirect("https://mentors-connect-vjti.vercel.app/host-meeting");
     console.log("Zoom token exchanged successfully:", access_token);
   } catch (err) {
     console.error(
