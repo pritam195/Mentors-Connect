@@ -385,7 +385,8 @@ app.get("/zoom/callback", async (req, res) => {
       httpOnly: true,
       secure: true,
       sameSite: "none",
-      maxAge: 60 * 60 * 1000, // 1 hour
+      maxAge: 60 * 60 * 1000,
+      domain: ".onrender.com",
     });
 
     res.redirect("https://mentors-connect-vjti.vercel.app/host-meeting");
