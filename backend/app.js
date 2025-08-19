@@ -383,8 +383,8 @@ app.get("/zoom/callback", async (req, res) => {
     // Set token in cookie
     res.cookie("zoom_token", access_token, {
       httpOnly: true,
-      secure: false,
-      sameSite: "Lax",
+      secure: true,
+      sameSite: "none",
       maxAge: 60 * 60 * 1000, // 1 hour
     });
 
