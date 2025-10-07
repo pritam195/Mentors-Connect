@@ -39,22 +39,3 @@ The platform enables students to connect with mentors through **live chat** and 
 4. **Session Management:**  
    Meeting info (join link, topic, time) is stored in MongoDB and displayed on the dashboard.
 
----
-
-## 📁 Project Structure
-Mentors-Connect/
-│
-├── client/ # React.js frontend
-│ ├── src/
-│ │ ├── components/ # UI components
-│ │ ├── pages/ # Dashboard, Chat, Login, etc.
-│ │ └── utils/ # API helpers and hooks
-│
-├── server/ # Node.js backend
-│ ├── routes/ # Express routes (auth, zoom, chat)
-│ ├── controllers/ # Request handlers
-│ ├── models/ # Mongoose schemas
-│ └── server.js # App entry point
-│
-├── package.json
-└── README.md
