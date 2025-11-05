@@ -12,7 +12,7 @@ const Meeting = () => {
     useEffect(() => {
         const fetchMeetings = async () => {
             try {
-                const res = await axios.get("http://localhost:3000/api/sessions");
+                const res = await axios.get("https://mentors-connect-1-m3po.onrender.com/api/sessions");
                 setMeetings(res.data);
             } catch (err) {
                 console.error("Error fetching meetings:", err);

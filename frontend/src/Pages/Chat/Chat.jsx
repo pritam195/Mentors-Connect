@@ -16,7 +16,7 @@ const Chat = () => {
 
   // 🔹 Load all users initially
   useEffect(() => {
-    axios.get('http://localhost:3000/users')
+    axios.get('https://mentors-connect-1-m3po.onrender.com/users')
       .then(res => {
         // 🔥 Filter out logged-in user
         const filteredUsers = res.data.filter(user => user.username !== loggedInUserId);
@@ -31,7 +31,7 @@ const Chat = () => {
   useEffect(() => {
     if (!selectedUser) return;
 
-    axios.get(`http://localhost:3000/messages/${loggedInUserId}`)
+    axios.get(`https://mentors-connect-1-m3po.onrender.com/messages/${loggedInUserId}`)
       .then(res => {
         const filtered = res.data.filter(
           m =>
