@@ -12,7 +12,7 @@ const Navbar = () => {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const response = await fetch('http://localhost:3000/api/verify-auth', {
+        const response = await fetch('https://mentors-connect-1-m3po.onrender.com/api/verify-auth', {
           method: 'GET',
           credentials: 'include', // CRITICAL: Sends cookies with request
         });

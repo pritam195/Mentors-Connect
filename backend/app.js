@@ -49,7 +49,7 @@ const path = require("path");
 const cors = require("cors");
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: ["http://localhost:5173","https://mentors-connect-indol.vercel.app/"],
     credentials: true,
   })
 );
@@ -588,7 +588,7 @@ app.get("/zoom/callback", async (req, res) => {
     req.session.completedMeeting = meetingData;
 
     // Redirect back to frontend with success
-    res.redirect(`http://localhost:5173/host-meeting?success=true`);
+    res.redirect(`mentors-connect-indol.vercel.app/host-meeting?success=true`);
   } catch (err) {
     console.error(
       "❌ Error in Zoom callback:",

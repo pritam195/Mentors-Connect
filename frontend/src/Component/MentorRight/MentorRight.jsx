@@ -12,7 +12,7 @@ const MentorRight = () => {
     useEffect(() => {
         async function handleFetchMentorsData() {
             try {
-                const response = await fetch("http://localhost:3000/mentor", {
+                const response = await fetch("https://mentors-connect-1-m3po.onrender.com/mentor", {
                     method: "GET"
                 });
                 if (response.ok) {
