@@ -6,14 +6,17 @@ const MeetingCom = () => {
     const [meeting, setMeeting] = useState(null);
     const [error, setError] = useState(null);
     const [name, setName] = useState("");
+    const [loading, setLoading] = useState(false);
     const [formData, setFormData] = useState({
         sessionName: '',
         description: '',
         date: '',
-        time : ''
+        time: ''
     });
 
-    const token = new URLSearchParams(window.location.search).get("token");
+    // Check if redirected back from Zoom OAuth
+    const urlParams = new URLSearchParams(window.location.search);
+    const success = urlParams.get('success');
 
     const handleChange = (e) => {
         setFormData({
@@ -24,47 +27,59 @@ const MeetingCom = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setLoading(true);
+        setError(null);
 
         try {
-            const response = await fetch("https://mentors-connect-zh64.onrender.com/api/sessionInfo", {
+            const response = await fetch("http://localhost:3000/api/sessionInfo", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
                 },
+                credentials: "include", // ⚠️ CRITICAL: Enable cookies/session
                 body: JSON.stringify(formData)
             });
 
-            if (response.ok) {
-                window.location.href = "https://mentors-connect-zh64.onrender.com/zoom/auth";
+            const data = await response.json();
+
+            if (response.ok && data.redirect) {
+                // Redirect to Zoom OAuth
+                console.log("✅ Redirecting to Zoom...");
+                window.location.href = "http://localhost:3000/zoom/auth";
             } else {
-                const data = await response.json();
                 setError(data.message || "Failed to save session details");
+                setLoading(false);
             }
         } catch (err) {
-            console.log("Error submitting form:", err);
+            console.error("Error submitting form:", err);
             setError("Server error occurred");
+            setLoading(false);
         }
     };
 
+    // Fetch meeting data after successful OAuth redirect
     useEffect(() => {
-        fetch("https://mentors-connect-zh64.onrender.com/api/create-meeting", {
-            credentials: "include"
-        })
-            .then((res) => {
-                if (!res.ok) throw new Error("Meeting creation failed");
-                return res.json();
+        if (success === 'true') {
+            setLoading(true);
+            fetch("http://localhost:3000/api/meeting-data", {
+                credentials: "include"
             })
-            .then((data) => {
-                console.log("🎉 Meeting created: ", data);
-                setMeeting(data);
-            })
-            .catch((err) => {
-                console.error("Error creating meeting:", err);
-                setError("Could not create meeting.");
-            });
-    }, []);
-      
-    
+                .then((res) => {
+                    if (!res.ok) throw new Error("Meeting data not found");
+                    return res.json();
+                })
+                .then((data) => {
+                    console.log("🎉 Meeting data loaded:", data);
+                    setMeeting(data);
+                    setLoading(false);
+                })
+                .catch((err) => {
+                    console.error("Error loading meeting:", err);
+                    setError("Could not load meeting data.");
+                    setLoading(false);
+                });
+        }
+    }, [success]);
 
     const extractMeetingId = (joinUrl) => {
         const match = joinUrl.match(/\/j\/(\d+)/);
@@ -75,10 +90,13 @@ const MeetingCom = () => {
         <>
             <Navbar />
             <div className="host-container">
-                {!token && !meeting && (
+                {/* Show form if no meeting created yet */}
+                {!success && !meeting && (
                     <>
                         <h2>Schedule a Session</h2>
-                        {error && <h3>{error}</h3>}
+                        {error && <p className="error-message">{error}</p>}
+                        {loading && <p>Redirecting to Zoom...</p>}
+
                         <form onSubmit={handleSubmit}>
                             <div className="form-group">
                                 <label>Name of the Session</label>
@@ -112,33 +130,38 @@ const MeetingCom = () => {
                                         onChange={handleChange}
                                         min={new Date().toISOString().split("T")[0]}
                                         required
-                                        />
-                                
+                                    />
                                     <input
                                         type="time"
                                         name="time"
                                         value={formData.time}
                                         onChange={handleChange}
                                         required
-                                        />
-                                    </div>
+                                    />
+                                </div>
                             </div>
-                            <button type="submit" className="host-button">Create the meeting</button>
+                            <button type="submit" className="host-button" disabled={loading}>
+                                {loading ? 'Processing...' : 'Create the meeting'}
+                            </button>
                         </form>
                     </>
                 )}
 
-                {token && !meeting && (
-                    <div>Creating your meeting...</div>
+                {/* Show loading state */}
+                {loading && success === 'true' && (
+                    <div>Loading your meeting details...</div>
                 )}
 
+                {/* Show meeting details after creation */}
                 {meeting && (
                     <>
-                        <h2>Zoom Meeting Created!</h2>
+                        <h2>✅ Zoom Meeting Created Successfully!</h2>
                         <div className="host-box">
+                            <p><strong>📋 Topic:</strong> {meeting.topic}</p>
                             <p><strong>🔗 Join Link:</strong> <a href={meeting.join_url} target="_blank" rel="noreferrer">{meeting.join_url}</a></p>
                             <p><strong>🆔 Meeting ID:</strong> {extractMeetingId(meeting.join_url)}</p>
                             <p><strong>🔒 Password:</strong> {meeting.password}</p>
+                            <p><strong>🕐 Start Time:</strong> {new Date(meeting.start_time).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })}</p>
                             <p><strong>🧑 Your Name:</strong></p>
                             <input
                                 type="text"
@@ -159,7 +182,7 @@ const MeetingCom = () => {
                                     }
                                 }}
                             >
-                                <button className="host-button">Join Meeting</button>
+                                <button className="host-button">Start Meeting</button>
                             </a>
                         </div>
                     </>

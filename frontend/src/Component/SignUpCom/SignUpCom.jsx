@@ -45,7 +45,7 @@ const SignUpCom = () => {
 
     try{
       const response = await axios.post(
-        'https://mentors-connect-zh64.onrender.com/create',
+        'http://localhost:3000/create',
         {
           name : formData.name,
           username : formData.username,

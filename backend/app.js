@@ -2,14 +2,16 @@ const express = require("express");
 const http = require("http");
 const { Server } = require("socket.io");
 const axios = require("axios");
+const session = require("express-session");
 require("dotenv").config();
 const mongoose = require("mongoose");
+const qs = require('querystring')
 
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: "https://mentors-connect-vjti.vercel.app",
+    origin: "http://localhost:5173",
     credentials: true,
     methods: ["GET", "POST"],
   },
@@ -47,7 +49,7 @@ const path = require("path");
 const cors = require("cors");
 app.use(
   cors({
-    origin: "https://mentors-connect-vjti.vercel.app",
+    origin: "http://localhost:5173",
     credentials: true,
   })
 );
@@ -155,6 +157,27 @@ app.post("/login", async function (req, res) {
     }
   });
 });
+
+// Add this endpoint to check if user is authenticated
+app.get("/api/verify-auth", function (req, res) {
+  const token = req.cookies.token;
+
+  if (!token) {
+    return res.status(401).json({ authenticated: false });
+  }
+
+  try {
+    const decoded = jwt.verify(token, "abcde");
+    res.status(200).json({ 
+      authenticated: true, 
+      username: decoded.username,
+      email: decoded.email 
+    });
+  } catch (err) {
+    res.status(401).json({ authenticated: false });
+  }
+});
+
 
 app.get("/logout", function (req, res) {
   res.cookie("token", "");
@@ -411,49 +434,82 @@ io.on("connection", (socket) => {
   });
 });
 
-// Zoom api integration
+app.use(
+  session({
+    secret: "your-secret-key-here", // Change this to a secure random string
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      secure: false, // set to true in production with HTTPS
+      maxAge: 60 * 60 * 1000, // 1 hour
+    },
+  })
+);
 
 const { ZOOM_CLIENT_ID, ZOOM_CLIENT_SECRET, ZOOM_REDIRECT_URI } = process.env;
-const qs = require("querystring");
 
-// Create a meeting info
+// Step 1: Store session info temporarily (DON'T save to DB yet)
 app.post("/api/sessionInfo", async (req, res) => {
   const { sessionName, description, date, time } = req.body;
 
   if (!sessionName || !description || !date || !time) {
-    return res.status(400).json({ message: "All the fields are required" });
+    return res.status(400).json({ message: "All fields are required" });
   }
 
   try {
-    console.log("Session info received :", {
+    console.log("Session info received:", {
       sessionName,
       description,
       date,
       time,
     });
 
-    await sessionModel.create({ sessionName, description, date, time });
-    return res
-      .status(200)
-      .json({ message: "Session detail saved successfully" });
+    // ✅ Store in express-session (temporary storage)
+    req.session.pendingSession = {
+      sessionName,
+      description,
+      date,
+      time,
+    };
+
+    // ✅ Save session before redirect (CRITICAL!)
+    req.session.save((err) => {
+      if (err) {
+        console.error("Session save error:", err);
+        return res.status(500).json({ message: "Failed to save session" });
+      }
+      console.log("✅ Session saved successfully");
+      return res.status(200).json({
+        message: "Ready to redirect to Zoom",
+        redirect: true,
+      });
+    });
   } catch (err) {
-    console.log("Error saving session info : ", err);
+    console.log("Error storing session info:", err);
     return res.status(500).json({ message: "Server error" });
   }
 });
 
-// Step 1: Redirect to Zoom
+// Step 2: Redirect to Zoom OAuth
 app.get("/zoom/auth", (req, res) => {
+  console.log("🔐 Redirecting to Zoom OAuth...");
   const zoomAuthUrl = `https://zoom.us/oauth/authorize?response_type=code&client_id=${ZOOM_CLIENT_ID}&redirect_uri=${ZOOM_REDIRECT_URI}`;
   res.redirect(zoomAuthUrl);
 });
 
-// Step 2: Handle Zoom callback
+// Step 3: Handle Zoom callback and create meeting
 app.get("/zoom/callback", async (req, res) => {
   const code = req.query.code;
 
+  if (!code) {
+    return res.status(400).send("Authorization code missing");
+  }
+
   try {
-    const response = await axios.post(
+    console.log("🔄 Exchanging code for access token...");
+
+    // Exchange authorization code for access token
+    const tokenResponse = await axios.post(
       "https://zoom.us/oauth/token",
       qs.stringify({
         grant_type: "authorization_code",
@@ -472,70 +528,126 @@ app.get("/zoom/callback", async (req, res) => {
       }
     );
 
-    const { access_token } = response.data;
+    const { access_token } = tokenResponse.data;
+    console.log("✅ Access token received");
 
-    // Set token in cookie
-    res.cookie("zoom_token", access_token, {
-      httpOnly: true,
-      secure: true,
-      sameSite: "none",
-      maxAge: 60 * 60 * 1000,
-      domain: ".onrender.com",
-    });
+    // ✅ Retrieve pending session from express-session
+    const pendingSession = req.session.pendingSession;
 
-    res.redirect("https://mentors-connect-vjti.vercel.app/host-meeting");
-    console.log("Zoom token exchanged successfully:", access_token);
-  } catch (err) {
-    console.error(
-      "Zoom token exchange failed:",
-      err.response?.data || err.message
-    );
-    res.status(500).send("Zoom auth failed");
-  }
-});
+    if (!pendingSession) {
+      console.error("❌ No pending session found!");
+      return res.status(400).send("Session data not found. Please try again.");
+    }
 
-// Step 3: Create Zoom meeting
-app.get("/api/create-meeting", async (req, res) => {
-  console.log("Creating Zoom meeting API called");
+    console.log("📋 Pending session data:", pendingSession);
 
-  const token = req.cookies.zoom_token;
-  if (!token) {
-    console.error("Zoom token not found in cookies");
-    return res.status(401).json({ message: "Unauthorized" });
-  }
-
-  try {
-    const now = new Date();
-    const isoTime = new Date(now.getTime() + 5 * 60 * 1000).toISOString(); // 5 minutes from now
-
-    const response = await axios.post(
+    // Create Zoom meeting with stored session data
+    const meetingResponse = await axios.post(
       "https://api.zoom.us/v2/users/me/meetings",
       {
-        topic: "Mentorship Session",
+        topic: pendingSession.sessionName,
         type: 2, // Scheduled meeting
-        start_time: isoTime,
+        start_time: `${pendingSession.date}T${pendingSession.time}:00`,
+        duration: 60,
         timezone: "Asia/Kolkata",
+        agenda: pendingSession.description,
         settings: {
           join_before_host: false,
           mute_upon_entry: true,
+          waiting_room: true,
         },
       },
       {
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${access_token}`,
           "Content-Type": "application/json",
         },
       }
     );
 
-    console.log("Meeting created:", response.data);
-    res.json(response.data);
+    const meetingData = meetingResponse.data;
+    console.log("🎉 Zoom meeting created:", meetingData.id);
+
+    // ✅ NOW save to database with all required fields
+    const newSession = await sessionModel.create({
+      sessionName: pendingSession.sessionName,
+      description: pendingSession.description,
+      date: pendingSession.date,
+      time: pendingSession.time,
+      meetingId: meetingData.id.toString(),
+      joinLink: meetingData.join_url,
+      password: meetingData.password || "N/A",
+    });
+
+    console.log("💾 Session saved to database:", newSession._id);
+
+    // Clear pending session
+    req.session.pendingSession = null;
+
+    // Store meeting data in session for display
+    req.session.completedMeeting = meetingData;
+
+    // Redirect back to frontend with success
+    res.redirect(`http://localhost:5173/host-meeting?success=true`);
   } catch (err) {
     console.error(
-      "Meeting creation failed:",
+      "❌ Error in Zoom callback:",
       err.response?.data || err.message
     );
-    res.status(500).json({ message: "Failed to create meeting" });
+    res.status(500).send("Failed to create meeting. Please try again.");
+  }
+});
+
+// Step 4: Get created meeting data
+app.get("/api/meeting-data", (req, res) => {
+  const meeting = req.session.completedMeeting;
+
+  if (!meeting) {
+    return res.status(404).json({ message: "No meeting data found" });
+  }
+
+  res.json(meeting);
+});
+
+
+
+// ===== Routes =====
+
+// GET all sessions
+app.get("/api/sessions", async (req, res) => {
+  try {
+    const sessions = await sessionModel.find().sort({ date: 1, time: 1 });
+    res.json(sessions);
+  } catch (err) {
+    console.error("Error fetching sessions:", err);
+    res.status(500).json({ message: "Failed to fetch sessions" });
+  }
+});
+
+// GET a single session by ID
+app.get("/api/sessions/:id", async (req, res) => {
+  try {
+    const session = await Session.findById(req.params.id);
+    if (!session) {
+      return res.status(404).json({ message: "Session not found" });
+    }
+    res.json(session);
+  } catch (err) {
+    console.error("Error fetching session:", err);
+    res.status(500).json({ message: "Failed to fetch session" });
+  }
+});
+
+// (Optional) POST a new session
+app.post("/api/sessions", async (req, res) => {
+  try {
+    const { sessionName, description, date, time } = req.body;
+    const session = new Session({ sessionName, description, date, time });
+    await session.save();
+    res.status(201).json(session);
+  } catch (err) {
+    console.error("Error creating session:", err);
+    res.status(400).json({ message: "Failed to create session" });
   }
 });
 

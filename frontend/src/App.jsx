@@ -8,6 +8,7 @@ import Mentor from './Pages/Mentor/Mentor.jsx';
 import Chat from './Pages/Chat/Chat.jsx';
 import Profile from './Pages/Profile/Profile.jsx';
 import MeetingCom from './Component/MeetingCom/MeetingCom.jsx';
+import Meetings from './Pages/Meeting/Meeting.jsx';
 
 export const Context = React.createContext();
 
@@ -17,7 +18,7 @@ const App = () => {
   useEffect(() => {
     async function handleFetchUsername() {
       try {
-        const response = await fetch("https://mentors-connect-zh64.onrender.com/get_username", {
+        const response = await fetch("http://localhost:3000/get_username", {
           method: "GET",
           credentials: "include"
         });
@@ -43,6 +44,7 @@ const App = () => {
         <Route path="/mentor" element={<Mentor />} />
         <Route path="/chat" element={<Chat />} />
         <Route path="/:name/profile" element={<Profile />} />
+        <Route path='/meetings' element={<Meetings/>} />
         <Route path="/host-meeting" element={<MeetingCom />} />
       </Routes>
     </Context.Provider>

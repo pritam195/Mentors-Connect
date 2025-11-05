@@ -1,12 +1,11 @@
 import React, { useContext, useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { LiaEditSolid } from "react-icons/lia"
-import { MdDone } from "react-icons/md"
+import { MdDone, MdEmail, MdPhone, MdLocationOn, MdWork, MdSchool } from "react-icons/md"
 import './ProfileCom.css'
 import { Context } from "../../App"
 
 const ProfileCom = () => {
-
   let navigate = useNavigate()
   let { username } = useContext(Context)
   let { name } = useParams()
@@ -46,7 +45,6 @@ const ProfileCom = () => {
   })
 
   let [newProfilePhoto, setNewProfilePhoto] = useState("")
-
   let [isBioEditing, setIsBioEditing] = useState(false)
   let [isResumeEditing, setIsResumeEditing] = useState(false)
   let [isEducationEditing, setIsEducationEditing] = useState(false)
@@ -57,7 +55,7 @@ const ProfileCom = () => {
   useEffect(() => {
     async function handleFetchUserInfo() {
       try {
-        const response = await fetch(`https://mentors-connect-zh64.onrender.com/${name}/profile`, {
+        const response = await fetch(`http://localhost:3000/${name}/profile`, {
           method: "GET"
         })
         if (response.ok) {
@@ -171,7 +169,7 @@ const ProfileCom = () => {
     }
 
     try {
-      let response = await fetch(`https://mentors-connect-zh64.onrender.com/${username}/profile`, {
+      let response = await fetch(`http://localhost:3000/${username}/profile`, {
         method: "POST",
         headers: {
           'Content-Type': "application/json"
@@ -192,7 +190,7 @@ const ProfileCom = () => {
     let formData = new FormData()
     formData.append("profile_photo", newProfilePhoto)
     try {
-      let response = await fetch(`https://mentors-connect-zh64.onrender.com/${username}/profile/profile-photo`, {
+      let response = await fetch(`http://localhost:3000/${username}/profile/profile-photo`, {
         method: "POST",
         body: formData
       })
@@ -207,276 +205,402 @@ const ProfileCom = () => {
   }
 
   return (
-    <div>
-      {name === username ?
+    <div className="profile-wrapper">
+      {name === username ? (
+        // ============= YOUR OWN PROFILE (Edit Mode) =============
         <div className="profile-container">
-          <div className="personal-info">
-            <img src={userInfo.profile_photo} alt="profile_photo" />
-            {isProfilePhotoEditing ?
-              <div>
-                <input type='file' onChange={(e) => setNewProfilePhoto(e.target.files[0])} />
-                <MdDone onClick={() => { setIsProfilePhotoEditing(false); handleSaveProfileChanges() }} />
+          {/* Hero Section */}
+          <div className="profile-hero">
+            <div className="cover-photo"></div>
+            <div className="profile-avatar-section">
+              <div className="avatar-wrapper">
+                <img src={userInfo.profile_photo} alt="profile" className="profile-avatar" />
+                {isProfilePhotoEditing ? (
+                  <div className="avatar-edit-active">
+                    <input type='file' onChange={(e) => setNewProfilePhoto(e.target.files[0])} />
+                    <button className="save-photo-btn" onClick={() => { setIsProfilePhotoEditing(false); handleSaveProfileChanges() }}>
+                      <MdDone />
+                    </button>
+                  </div>
+                ) : (
+                  <button className="avatar-edit-btn" onClick={() => setIsProfilePhotoEditing(true)}>
+                    <LiaEditSolid />
+                  </button>
+                )}
               </div>
-              :
-              <div>
-                <LiaEditSolid onClick={() => setIsProfilePhotoEditing(true)} />
+              <div className="profile-header-info">
+                <h1 className="profile-name">{userInfo.name}</h1>
+                <p className="profile-username">@{userInfo.username}</p>
               </div>
-            }
-            <div className="personal-info-text">
-              <p><strong>Name</strong> : {userInfo.name}</p>
-              <p><strong>Username</strong> : {userInfo.username}</p>
-              <p><strong>Email</strong> : {userInfo.email}</p>
-              <p><strong>Mobile No</strong> : {userInfo.mobno}</p>
+            </div>
+          </div>
 
-              <p><strong>Bio</strong> : 
-              {isBioEditing ?
-                <div>
-                  <input autoFocus value={userBio.bio} onChange={(e) => handleInputChange(e, "bio")} />
-                  <MdDone onClick={() => { setIsBioEditing(false); handleSaveBioChanges() }} />
+          {/* Main Content */}
+          <div className="profile-content">
+            <div className="profile-sidebar">
+              {/* About Card */}
+              <div className="info-card">
+                <div className="card-header">
+                  <h2>About</h2>
+                  {isBioEditing ? (
+                    <MdDone className="save-icon" onClick={() => { setIsBioEditing(false); handleSaveBioChanges() }} />
+                  ) : (
+                    <LiaEditSolid className="edit-icon" onClick={() => setIsBioEditing(true)} />
+                  )}
                 </div>
-                :
-                <div>
-                  <span>{userBio.bio}</span>
-                  <LiaEditSolid onClick={() => setIsBioEditing(true)} />
+                <div className="card-body">
+                  {isBioEditing ? (
+                    <textarea
+                      className="bio-textarea"
+                      autoFocus
+                      value={userBio.bio}
+                      onChange={(e) => handleInputChange(e, "bio")}
+                      placeholder="Tell us about yourself..."
+                    />
+                  ) : (
+                    <p className="bio-text">{userBio.bio || "No bio added yet"}</p>
+                  )}
                 </div>
-                }</p>
-              <p className="resume-field">
-                <strong>Resume :</strong>
-                {isResumeEditing ? (
-                  <>
+              </div>
+
+              {/* Contact Info */}
+              <div className="info-card">
+                <div className="card-header">
+                  <h2>Contact Info</h2>
+                </div>
+                <div className="card-body">
+                  <div className="contact-item">
+                    <MdEmail className="contact-icon" />
+                    <span>{userInfo.email}</span>
+                  </div>
+                  <div className="contact-item">
+                    <MdPhone className="contact-icon" />
+                    <span>{userInfo.mobno}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Resume */}
+              <div className="info-card">
+                <div className="card-header">
+                  <h2>Resume</h2>
+                  {isResumeEditing ? (
+                    <MdDone className="save-icon" onClick={() => { setIsResumeEditing(false); handleSaveBioChanges() }} />
+                  ) : (
+                    <LiaEditSolid className="edit-icon" onClick={() => setIsResumeEditing(true)} />
+                  )}
+                </div>
+                <div className="card-body">
+                  {isResumeEditing ? (
                     <input
                       autoFocus
+                      className="resume-input"
                       value={userBio.resume}
                       onChange={(e) => handleInputChange(e, "resume")}
-                      className="resume-input"
+                      placeholder="Resume link..."
                     />
-                    <MdDone onClick={() => { setIsResumeEditing(false); handleSaveBioChanges(); }} />
-                  </>
-                ) : (
-                  <>
-                    {userBio.resume && (
-                      <a href={userBio.resume} target="_blank" rel="noopener noreferrer" className="resume-link">Check</a>
-                    )}
-                    <LiaEditSolid onClick={() => setIsResumeEditing(true)} />
-                  </>
-                )}
-              </p>
-            </div>
-          </div>
-
-          <div className="professional-info" >
-            <div className="box1">
-              <h2 className='education'>Education detail</h2 >
-              {isEducationEditing ?
-                <div>
-                  {(userBio.educational_details.length === 0 ? [{ standard: "", marks: "", institution: "", institution_address: "" }] : userBio.educational_details).map((detail, i) => (
-                    <div key={i}>
-                      <p>Standard</p>
-                      <input autoFocus value={detail.standard} onChange={(e) => handleInputChange(e, "standard", i)} />
-                      <p>Marks</p>
-                      <input value={detail.marks} onChange={(e) => handleInputChange(e, "marks", i)} />
-                      <p>Institution</p>
-                      <input value={detail.institution} onChange={(e) => handleInputChange(e, "institution", i)} />
-                      <p>Institution Address</p>
-                      <input value={detail.institution_address} onChange={(e) => handleInputChange(e, "institution_address", i)} />
-                    </div>
-                  ))}
-                  <button onClick={() => handleAddExtraField("education")}>Add Education</button>
-                  <MdDone onClick={() => { setIsEducationEditing(false); handleSaveBioChanges(); }} />
+                  ) : (
+                    userBio.resume ? (
+                      <a href={userBio.resume} target="_blank" rel="noopener noreferrer" className="resume-btn">
+                        📄 View Resume
+                      </a>
+                    ) : (
+                      <p className="no-data">No resume uploaded</p>
+                    )
+                  )}
                 </div>
-                :
-                <div>
-                  <ul>
-                    {userBio.educational_details.map((detail, i) =>
-                      <li key={i} >{detail.standard} : {detail.marks} % <br /> {detail.institution}, {detail.institution_address}</li>
-                    )}
-                  </ul>
-                  <LiaEditSolid onClick={() => setIsEducationEditing(true)} />
+              </div>
+
+              {/* Social Links */}
+              <div className="info-card">
+                <div className="card-header">
+                  <h2>Social Links</h2>
+                  {isSocialLinksEditing ? (
+                    <MdDone className="save-icon" onClick={() => { setIsSocialLinksEditing(false); handleSaveBioChanges() }} />
+                  ) : (
+                    <LiaEditSolid className="edit-icon" onClick={() => setIsSocialLinksEditing(true)} />
+                  )}
                 </div>
-              }
-
-              <h2 className='social-links'>Social links</h2>
-              {isSocialLinksEditing ?
-                <div>
-                  {(userBio.social_links.length === 0 ? [{ name: "", link: "" }] : userBio.social_links).map((detail, i) => (
-                    <div key={i}>
-                      <p>Name</p>
-                      <input autoFocus value={detail.name} onChange={(e) => handleInputChange(e, "name", i)} />
-                      <p>Link</p>
-                      <input value={detail.link} onChange={(e) => handleInputChange(e, "link", i)} />
-                    </div>
-                  ))}
-                  <button onClick={() => handleAddExtraField("social_links")}>Add Link</button>
-                  <MdDone onClick={() => { setIsSocialLinksEditing(false); handleSaveBioChanges(); }} />
-                </div>
-                :
-                <div>
-                  <ul>
-                    {userBio.social_links.map((detail, i) =>
-                      <li key={i} >
-                        <a href={detail.link} >{detail.name}</a>
-                      </li>
-                    )}
-                  </ul>
-                  <LiaEditSolid onClick={() => setIsSocialLinksEditing(true)} />
-                </div>
-              }
-              <h2 className="Meeting-info"> Meeting Info</h2>
-              <li>Number of Followers : 1 Million+ </li>
-              <li>Meeting Held : 101 </li>
-              <li>Likes : 10 Million</li>
-              <li>Dislikes : 1 Thousand</li>
-
-            </div>
-            <div className="work-experience-section">
-              <h2 className="work-exp-title">Work Experience</h2>
-
-              {isWorkExpEditing ? (
-                <div className="section-card">
-                  <ul>
-                    {userBio.work_experience.map((detail, i) => (
-                      <li key={i} className="work-exp-list-item">
-                        <p><strong>Company Name:</strong>
-                          <input
-                            autoFocus
-                            value={detail.company_name}
-                            onChange={(e) => handleInputChange(e, "company_name", i)}
-                          />
-                        </p>
-
-                        <p><strong>Role:</strong>
-                          <input
-                            value={detail.role}
-                            onChange={(e) => handleInputChange(e, "role", i)}
-                          />
-                        </p>
-
-                        <p><strong>Place:</strong>
-                          <input
-                            value={detail.place}
-                            onChange={(e) => handleInputChange(e, "place", i)}
-                          />
-                        </p>
-
-                        <p><strong>Duration:</strong>
-                          <input
-                            value={detail.duration}
-                            onChange={(e) => handleInputChange(e, "duration", i)}
-                          />
-                        </p>
-
-                        <p><strong>Features:</strong></p>
-                        {detail.features.map((feature, j) => (
-                          <input
-                            key={j}
-                            value={feature}
-                            onChange={(e) => handleInputChange(e, "feature", i, j)}
-                            placeholder={`Feature ${j + 1}`}
-                          />
-                        ))}
-                        <button onClick={() => handleAddExtraField("feature", i)}>Add Feature</button>
-                      </li>
-                    ))}
-                  </ul>
-
-                  <button onClick={() => handleAddExtraField("workExp")}>Add Experience</button>
-                  <MdDone
-                    onClick={() => {
-                      setIsWorkExpEditing(false);
-                      handleSaveBioChanges();
-                    }}
-                    className="save-icon"
-                  />
-                </div>
-              ) : (
-                <div className="section-card">
-                  <ul>
-                    {userBio.work_experience.map((detail, i) => (
-                      <li key={i} className="work-exp-list-item">
-                        <p><strong>Company Name:</strong> {detail.company_name}</p>
-                        <p><strong>Role:</strong> {detail.role}</p>
-                        <p><strong>Place:</strong> {detail.place}</p>
-                        <p><strong>Duration:</strong> {detail.duration}</p>
-                        {detail.features.map((feature, j) => (
-                          <p key={j}><strong>Feature {j + 1}:</strong> {feature}</p>
-                        ))}
-                      </li>
-                    ))}
-                  </ul>
-                  <LiaEditSolid onClick={() => setIsWorkExpEditing(true)} />
-                </div>
-              )}
-            </div>
-
-          </div>
-        </div>
-        :
-        <div className="profile-container">
-          <div className="personal-info">
-            <img src={userInfo.profile_photo} alt="profile_photo" />
-            <div className="personal-info-text">
-              <h2>Name <span> {userInfo.name} </span></h2>
-              <h2>Username <span> {userInfo.username} </span></h2>
-              <h2>Email <span>{userInfo.email}</span></h2>
-              <h2>Mobile No <span>{userInfo.mobno}</span></h2>
-              <h2>Bio</h2>
-              <span>{userBio.bio}</span>
-              <h2>Resume</h2>
-              {userBio.resume &&
-                <a href={userBio.resume} target='_blank' rel="noopener noreferrer" >Check</a>
-              }
-            </div>
-          </div>
-
-          <div className="professional-info">
-            <div className="box1">
-              <h2 className='education'>Education detail</h2 >
-              <ul>
-                {userBio.educational_details.map((detail, i) =>
-                  <li key={i} >{detail.standard} : {detail.marks} % <br /> {detail.institution}, {detail.institution_address}</li>
-                )}
-              </ul>
-
-              <h2 className='social-links'>Social links</h2>
-              <ul>
-                {userBio.social_links.map((detail, i) =>
-                  <li key={i} >
-                    <a href={detail.link} >{detail.name}</a>
-                  </li>
-                )}
-              </ul>
-              <h2 className="Meeting-info"> Meeting Info</h2>
-              <li>Number of Followers : 1 Million+ </li>
-              <li>Meeting Held : 101 </li>
-              <li>Likes : 10 Million</li>
-              <li>Dislikes : 1 Thousand</li>
-
-            </div>
-
-            
-            <div className="work-experience-section">
-              <h2>Work Experience</h2>
-              <div className="section-card">
-                <ul>
-                  {userBio.work_experience.map((detail, i) => (
-                    <li key={i}>
-                      <p><strong>Company Name:</strong> {detail.company_name}</p>
-                      <p><strong>Role:</strong> {detail.role}</p>
-                      <p><strong>Place:</strong> {detail.place}</p>
-                      <p><strong>Duration:</strong> {detail.duration}</p>
-                      {detail.features.map((feature, j) => (
-                        <p key={j}><strong>Feature {j + 1}:</strong> {feature}</p>
+                <div className="card-body">
+                  {isSocialLinksEditing ? (
+                    <div className="edit-section">
+                      {(userBio.social_links.length === 0 ? [{ name: "", link: "" }] : userBio.social_links).map((detail, i) => (
+                        <div key={i} className="input-group">
+                          <input placeholder="Platform" value={detail.name} onChange={(e) => handleInputChange(e, "name", i)} />
+                          <input placeholder="URL" value={detail.link} onChange={(e) => handleInputChange(e, "link", i)} />
+                        </div>
                       ))}
-                    </li>
-                  ))}
-                </ul>
+                      <button className="add-btn" onClick={() => handleAddExtraField("social_links")}>+ Add Link</button>
+                    </div>
+                  ) : (
+                    <div className="social-links-list">
+                      {userBio.social_links.length > 0 ? (
+                        userBio.social_links.map((detail, i) => (
+                          <a key={i} href={detail.link} target="_blank" rel="noopener noreferrer" className="social-link">
+                            🔗 {detail.name}
+                          </a>
+                        ))
+                      ) : (
+                        <p className="no-data">No social links added</p>
+                      )}
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
 
+            <div className="profile-main">
+              {/* Education */}
+              <div className="info-card">
+                <div className="card-header">
+                  <h2><MdSchool /> Education</h2>
+                  {isEducationEditing ? (
+                    <MdDone className="save-icon" onClick={() => { setIsEducationEditing(false); handleSaveBioChanges() }} />
+                  ) : (
+                    <LiaEditSolid className="edit-icon" onClick={() => setIsEducationEditing(true)} />
+                  )}
+                </div>
+                <div className="card-body">
+                  {isEducationEditing ? (
+                    <div className="edit-section">
+                      {(userBio.educational_details.length === 0 ? [{ standard: "", marks: "", institution: "", institution_address: "" }] : userBio.educational_details).map((detail, i) => (
+                        <div key={i} className="education-edit-item">
+                          <input placeholder="Degree/Standard" value={detail.standard} onChange={(e) => handleInputChange(e, "standard", i)} />
+                          <input placeholder="Marks/GPA" value={detail.marks} onChange={(e) => handleInputChange(e, "marks", i)} />
+                          <input placeholder="Institution" value={detail.institution} onChange={(e) => handleInputChange(e, "institution", i)} />
+                          <input placeholder="Location" value={detail.institution_address} onChange={(e) => handleInputChange(e, "institution_address", i)} />
+                        </div>
+                      ))}
+                      <button className="add-btn" onClick={() => handleAddExtraField("education")}>+ Add Education</button>
+                    </div>
+                  ) : (
+                    <div className="timeline">
+                      {userBio.educational_details.length > 0 ? (
+                        userBio.educational_details.map((detail, i) => (
+                          <div key={i} className="timeline-item">
+                            <div className="timeline-marker"></div>
+                            <div className="timeline-content">
+                              <h3>{detail.standard}</h3>
+                              <p className="marks">Score: {detail.marks}%</p>
+                              <p className="institution">{detail.institution}</p>
+                              <p className="location"><MdLocationOn /> {detail.institution_address}</p>
+                            </div>
+                          </div>
+                        ))
+                      ) : (
+                        <p className="no-data">No education details added</p>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </div>
 
+              {/* Work Experience */}
+              <div className="info-card">
+                <div className="card-header">
+                  <h2><MdWork /> Work Experience</h2>
+                  {isWorkExpEditing ? (
+                    <MdDone className="save-icon" onClick={() => { setIsWorkExpEditing(false); handleSaveBioChanges() }} />
+                  ) : (
+                    <LiaEditSolid className="edit-icon" onClick={() => setIsWorkExpEditing(true)} />
+                  )}
+                </div>
+                <div className="card-body">
+                  {isWorkExpEditing ? (
+                    <div className="edit-section">
+                      {userBio.work_experience.map((detail, i) => (
+                        <div key={i} className="work-edit-item">
+                          <input placeholder="Company Name" value={detail.company_name} onChange={(e) => handleInputChange(e, "company_name", i)} />
+                          <input placeholder="Role" value={detail.role} onChange={(e) => handleInputChange(e, "role", i)} />
+                          <input placeholder="Location" value={detail.place} onChange={(e) => handleInputChange(e, "place", i)} />
+                          <input placeholder="Duration" value={detail.duration} onChange={(e) => handleInputChange(e, "duration", i)} />
+                          <label>Key Responsibilities:</label>
+                          {detail.features.map((feature, j) => (
+                            <input key={j} placeholder={`Responsibility ${j + 1}`} value={feature} onChange={(e) => handleInputChange(e, "feature", i, j)} />
+                          ))}
+                          <button className="add-feature-btn" onClick={() => handleAddExtraField("feature", i)}>+ Add Responsibility</button>
+                        </div>
+                      ))}
+                      <button className="add-btn" onClick={() => handleAddExtraField("workExp")}>+ Add Experience</button>
+                    </div>
+                  ) : (
+                    <div className="timeline">
+                      {userBio.work_experience.length > 0 ? (
+                        userBio.work_experience.map((detail, i) => (
+                          <div key={i} className="timeline-item">
+                            <div className="timeline-marker"></div>
+                            <div className="timeline-content">
+                              <h3>{detail.role}</h3>
+                              <p className="company">{detail.company_name}</p>
+                              <p className="duration">📅 {detail.duration}</p>
+                              <p className="location"><MdLocationOn /> {detail.place}</p>
+                              {detail.features.length > 0 && (
+                                <ul className="features-list">
+                                  {detail.features.map((feature, j) => (
+                                    <li key={j}>{feature}</li>
+                                  ))}
+                                </ul>
+                              )}
+                            </div>
+                          </div>
+                        ))
+                      ) : (
+                        <p className="no-data">No work experience added</p>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
           </div>
         </div>
-      }
+      ) : (
+        // ============= OTHER USER'S PROFILE (View Only) =============
+        <div className="profile-container">
+          {/* Hero Section */}
+          <div className="profile-hero">
+            <div className="cover-photo"></div>
+            <div className="profile-avatar-section">
+              <div className="avatar-wrapper">
+                <img src={userInfo.profile_photo} alt="profile" className="profile-avatar" />
+              </div>
+              <div className="profile-header-info">
+                <h1 className="profile-name">{userInfo.name}</h1>
+                <p className="profile-username">@{userInfo.username}</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Main Content */}
+          <div className="profile-content">
+            <div className="profile-sidebar">
+              {/* About Card */}
+              <div className="info-card">
+                <div className="card-header">
+                  <h2>About</h2>
+                </div>
+                <div className="card-body">
+                  <p className="bio-text">{userBio.bio || "No bio available"}</p>
+                </div>
+              </div>
+
+              {/* Contact Info */}
+              <div className="info-card">
+                <div className="card-header">
+                  <h2>Contact Info</h2>
+                </div>
+                <div className="card-body">
+                  <div className="contact-item">
+                    <MdEmail className="contact-icon" />
+                    <span>{userInfo.email}</span>
+                  </div>
+                  <div className="contact-item">
+                    <MdPhone className="contact-icon" />
+                    <span>{userInfo.mobno}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Resume */}
+              <div className="info-card">
+                <div className="card-header">
+                  <h2>Resume</h2>
+                </div>
+                <div className="card-body">
+                  {userBio.resume ? (
+                    <a href={userBio.resume} target="_blank" rel="noopener noreferrer" className="resume-btn">
+                      📄 View Resume
+                    </a>
+                  ) : (
+                    <p className="no-data">No resume available</p>
+                  )}
+                </div>
+              </div>
+
+              {/* Social Links */}
+              <div className="info-card">
+                <div className="card-header">
+                  <h2>Social Links</h2>
+                </div>
+                <div className="card-body">
+                  <div className="social-links-list">
+                    {userBio.social_links.length > 0 ? (
+                      userBio.social_links.map((detail, i) => (
+                        <a key={i} href={detail.link} target="_blank" rel="noopener noreferrer" className="social-link">
+                          🔗 {detail.name}
+                        </a>
+                      ))
+                    ) : (
+                      <p className="no-data">No social links available</p>
+                    )}
+                  </div>
+                </div>
+                </div>
+            </div>
+
+            <div className="profile-main">
+              {/* Education */}
+              <div className="info-card">
+                <div className="card-header">
+                  <h2><MdSchool /> Education</h2>
+                </div>
+                <div className="card-body">
+                  <div className="timeline">
+                    {userBio.educational_details.length > 0 ? (
+                      userBio.educational_details.map((detail, i) => (
+                        <div key={i} className="timeline-item">
+                          <div className="timeline-marker"></div>
+                          <div className="timeline-content">
+                            <h3>{detail.standard}</h3>
+                            <p className="marks">Score: {detail.marks}%</p>
+                            <p className="institution">{detail.institution}</p>
+                            <p className="location"><MdLocationOn /> {detail.institution_address}</p>
+                          </div>
+                        </div>
+                      ))
+                    ) : (
+                      <p className="no-data">No education details available</p>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Work Experience */}
+              <div className="info-card">
+                <div className="card-header">
+                  <h2><MdWork /> Work Experience</h2>
+                </div>
+                <div className="card-body">
+                  <div className="timeline">
+                    {userBio.work_experience.length > 0 ? (
+                      userBio.work_experience.map((detail, i) => (
+                        <div key={i} className="timeline-item">
+                          <div className="timeline-marker"></div>
+                          <div className="timeline-content">
+                            <h3>{detail.role}</h3>
+                            <p className="company">{detail.company_name}</p>
+                            <p className="duration">📅 {detail.duration}</p>
+                            <p className="location"><MdLocationOn /> {detail.place}</p>
+                            {detail.features.length > 0 && (
+                              <ul className="features-list">
+                                {detail.features.map((feature, j) => (
+                                  <li key={j}>{feature}</li>
+                                ))}
+                              </ul>
+                            )}
+                          </div>
+                        </div>
+                      ))
+                    ) : (
+                      <p className="no-data">No work experience available</p>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

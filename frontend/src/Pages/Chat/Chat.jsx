@@ -16,7 +16,7 @@ const Chat = () => {
 
   // 🔹 Load all users initially
   useEffect(() => {
-    axios.get('https://mentors-connect-zh64.onrender.com/users')
+    axios.get('http://localhost:3000/users')
       .then(res => {
         // 🔥 Filter out logged-in user
         const filteredUsers = res.data.filter(user => user.username !== loggedInUserId);
@@ -31,7 +31,7 @@ const Chat = () => {
   useEffect(() => {
     if (!selectedUser) return;
 
-    axios.get(`https://mentors-connect-zh64.onrender.com/messages/${loggedInUserId}`)
+    axios.get(`http://localhost:3000/messages/${loggedInUserId}`)
       .then(res => {
         const filtered = res.data.filter(
           m =>
@@ -100,7 +100,7 @@ const Chat = () => {
     socket.emit('send_message', message);
 
     // Optimistically update UI
-    setMessages(prev => [...prev, { ...message, sender: 'You' }]);
+    // setMessages(prev => [...prev, { ...message, sender: 'You' }]);
 
     // Update user list sort (optional helper)
     updateMessageTime(selectedUser.username, timestamp);
